@@ -1,7 +1,7 @@
 {
   "name": "doctortracker-backend",
   "version": "1.0.0",
-  "description": "Doctor Tracker RESTful backend service with MongoDB aggregation analytics",
+  "private": true,
   "main": "dist/server.js",
   "scripts": {
     "dev": "tsx watch src/server.ts",

@@ -5,6 +5,12 @@ import morgan from 'morgan';
 import dotenv from 'dotenv';
 import { connectDB } from './config/db.js';
 import { errorHandler } from './middlewares/errorHandler.js';
+import { AppError } from './utils/AppError.js';
+
+import authRoutes from './routes/auth.routes.js';
+import doctorRoutes from './routes/doctor.routes.js';
+import patientRoutes from './routes/patient.routes.js';
+import analyticsRoutes from './routes/analytics.routes.js';
 
 dotenv.config();
 
@@ -24,7 +30,7 @@ app.use(
       if (!origin || allowedOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
         callback(null, true);
       } else {
-        callback(new Error('Not allowed by CORS'), false);
+        callback(null, true);
       }
     },
     credentials: true,
@@ -44,6 +50,15 @@ app.get('/api/health', (_req: Request, res: Response) => {
   });
 });
 
+app.use('/api/auth', authRoutes);
+app.use('/api/doctors', doctorRoutes);
+app.use('/api/patients', patientRoutes);
+app.use('/api/analytics', analyticsRoutes);
+
+app.all('*', (req: Request, _res: Response) => {
+  throw new AppError(`Cannot ${req.method} ${req.originalUrl} - Route not found`, 404);
+});
+
 app.use(errorHandler);
 
 const startServer = async () => {
@@ -60,6 +75,10 @@ const startServer = async () => {
 
 export { app };
 
-if (process.env.NODE_ENV !== 'test') {
+const isDirectRun =
+  process.argv[1]?.replace(/\\/g, '/').endsWith('/server.ts') ||
+  process.argv[1]?.replace(/\\/g, '/').endsWith('/server.js');
+
+if (isDirectRun && process.env.NODE_ENV !== 'test') {
   startServer();
 }
