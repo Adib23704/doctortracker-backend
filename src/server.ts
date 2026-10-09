@@ -1,0 +1,65 @@
+import express, { Request, Response } from 'express';
+import cors from 'cors';
+import helmet from 'helmet';
+import morgan from 'morgan';
+import dotenv from 'dotenv';
+import { connectDB } from './config/db.js';
+import { errorHandler } from './middlewares/errorHandler.js';
+
+dotenv.config();
+
+const app = express();
+const PORT = process.env.PORT || 5000;
+
+app.use(helmet());
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      const allowedOrigins = [
+        'http://localhost:3000',
+        'http://127.0.0.1:3000',
+        process.env.CLIENT_URL,
+      ].filter(Boolean);
+
+      if (!origin || allowedOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'), false);
+      }
+    },
+    credentials: true,
+  })
+);
+
+app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+app.get('/api/health', (_req: Request, res: Response) => {
+  res.status(200).json({
+    status: 'ok',
+    service: 'Doctor Tracker API',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+  });
+});
+
+app.use(errorHandler);
+
+const startServer = async () => {
+  try {
+    await connectDB();
+  } catch (err) {
+    console.warn('[Server] Warning: Started without immediate MongoDB connection. Retrying in background...');
+  }
+
+  app.listen(PORT, () => {
+    console.log(`[Server] Doctor Tracker backend running on port ${PORT} [${process.env.NODE_ENV || 'development'}]`);
+  });
+};
+
+export { app };
+
+if (process.env.NODE_ENV !== 'test') {
+  startServer();
+}
