@@ -2,6 +2,10 @@
 
 RESTful API service for Doctor Tracker, built with Node.js, Express, TypeScript, and MongoDB (Mongoose). Handles authentication, doctor and patient management, and real-time dashboard analytics.
 
+- **Live Backend API:** https://doctortracker-api.adibdev.me/
+- **Frontend GitHub Repo:** https://github.com/Adib23704/doctortracker-frontend/
+- **Live Frontend App:** https://doctortracker.adibdev.me/
+
 ---
 
 ## Description
@@ -158,9 +162,9 @@ Evidence of backend functionality and test verification is documented in `docs/s
 
 ## Submission Details
 
-- **Backend GitHub Repo:** `[Insert Backend Repo URL]`
-- **Live Backend API URL:** `[Insert Live Backend URL on Render / VPS]`
+- **Live Backend API URL:** `[Insert Live Backend URL on Render / VPS / Railway]`
 - **Frontend GitHub Repo:** `[Insert Frontend Repo URL]`
+- **Backend GitHub Repo:** `[Insert Backend Repo URL]`
 - **Live Frontend URL:** `[Insert Live Frontend Website URL]`
 - **Admin Login Credentials:**
   - **Email:** `admin@doctortracker.com`
