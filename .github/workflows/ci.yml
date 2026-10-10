@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Lint, Build & Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - uses: pnpm/setup@v3
+        with:
+          version: latest
+          runtime: node@24
+          cache: true
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Verify formatting & linting (Biome)
+        run: pnpm lint
+
+      - name: Compile TypeScript build
+        run: pnpm build
+
+      - name: Run automated API verification tests
+        run: pnpm test:api
+        env:
+          NODE_ENV: test
+          PORT: 5099
+          JWT_SECRET: ci_test_secret_key_1234567890abcdef
