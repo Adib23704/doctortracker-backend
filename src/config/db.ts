@@ -1,7 +1,6 @@
 import dns from 'node:dns';
 import mongoose from 'mongoose';
 
-// Ensure Node.js resolves MongoDB Atlas SRV records properly on Windows / local DNS
 try {
   dns.setServers(['8.8.8.8', '1.1.1.1']);
 } catch {

@@ -151,7 +151,7 @@ backend/src/
 Evidence of backend functionality and test verification is documented in `docs/screenshots/`:
 
 1. **Database Seeding (`seed.log`):** Shows creation of admin credentials, 12 doctors, 38+ patients, and calculated patient counts.
-2. **Automated API Verification (`test-api.log`):** Output from `npm run test:api` confirming health checks, 404 handling, auth token rejection, input validation, and live authenticated flows (7/7 passed).
+2. **Automated API Verification (`test-api.log`):** Output from `npm run test:api` confirming health checks, 404 handling, auth token rejection, input validation, dynamic conditions retrieval, and live authenticated flows (8/8 passed).
 3. **Production Build:** Clean TypeScript compilation with zero errors via `tsc`.
 
 ---
@@ -191,6 +191,7 @@ Evidence of backend functionality and test verification is documented in `docs/s
 | Method | Route | Description | Auth Required |
 |---|---|---|---|
 | `GET` | `/api/patients` | List patients (search, condition/status filter) | Yes (Bearer) |
+| `GET` | `/api/patients/conditions` | List all dynamic distinct conditions | Yes (Bearer) |
 | `GET` | `/api/patients/:id` | Get patient details with doctor | Yes (Bearer) |
 | `POST` | `/api/patients` | Create new patient record | Yes (Bearer) |
 | `PUT` | `/api/patients/:id` | Update patient record & doctor assignment | Yes (Bearer) |

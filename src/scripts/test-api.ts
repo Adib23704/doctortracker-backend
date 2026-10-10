@@ -89,6 +89,17 @@ const runTests = async () => {
           'GET /api/doctors returns paginated list'
         );
 
+        const conditionsRes = await fetch(`${baseUrl}/api/patients/conditions`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const conditionsData = (await conditionsRes.json()) as any;
+        assert(
+          conditionsRes.status === 200 &&
+            Array.isArray(conditionsData.data) &&
+            conditionsData.data.length > 0,
+          'GET /api/patients/conditions returns dynamic list of conditions'
+        );
+
         const analyticsRes = await fetch(`${baseUrl}/api/analytics/dashboard`, {
           headers: { Authorization: `Bearer ${token}` },
         });
