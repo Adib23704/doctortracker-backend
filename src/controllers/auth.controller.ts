@@ -1,10 +1,10 @@
-import { Response } from 'express';
+import type { Response } from 'express';
 import jwt from 'jsonwebtoken';
+import type { AuthRequest } from '../middlewares/auth.middleware.js';
 import { User } from '../models/User.js';
 import { AppError } from '../utils/AppError.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
 import { loginSchema } from '../validations/auth.validation.js';
-import { AuthRequest } from '../middlewares/auth.middleware.js';
 
 const generateToken = (userId: string): string => {
   const secret = process.env.JWT_SECRET || 'doctor_tracker_jwt_secret_dev_key_2026_secure';

@@ -1,8 +1,11 @@
-import mongoose, { FilterQuery } from 'mongoose';
-import { Doctor, IDoctor } from '../models/Doctor.js';
-import { Patient, IPatient } from '../models/Patient.js';
+import mongoose from 'mongoose';
+import { Doctor } from '../models/Doctor.js';
+import { Patient } from '../models/Patient.js';
 import { AppError } from '../utils/AppError.js';
-import { CreateDoctorInput, CreateDoctorPatientInput } from '../validations/doctor.validation.js';
+import type {
+  CreateDoctorInput,
+  CreateDoctorPatientInput,
+} from '../validations/doctor.validation.js';
 
 export interface DoctorQueryParams {
   page?: number;
@@ -21,9 +24,9 @@ export const getDoctorsList = async (params: DoctorQueryParams) => {
   const limit = Math.min(100, Math.max(1, Number(params.limit) || 10));
   const skip = (page - 1) * limit;
 
-  const filter: FilterQuery<IDoctor> = {};
+  const filter: Record<string, any> = {};
 
-  if (params.search && params.search.trim()) {
+  if (params.search?.trim()) {
     const searchRegex = new RegExp(params.search.trim(), 'i');
     filter.$or = [
       { name: searchRegex },
@@ -57,11 +60,7 @@ export const getDoctorsList = async (params: DoctorQueryParams) => {
   const sortOptions: Record<string, 1 | -1> = { [sortBy]: sortOrder };
 
   const [doctors, total] = await Promise.all([
-    Doctor.find(filter)
-      .sort(sortOptions)
-      .skip(skip)
-      .limit(limit)
-      .lean(),
+    Doctor.find(filter).sort(sortOptions).skip(skip).limit(limit).lean(),
     Doctor.countDocuments(filter),
   ]);
 
@@ -147,19 +146,15 @@ export const getPatientsByDoctorId = async (
   const limit = Math.min(100, Math.max(1, Number(params.limit) || 10));
   const skip = (page - 1) * limit;
 
-  const filter: FilterQuery<IPatient> = { doctor: doctorId };
+  const filter: Record<string, any> = { doctor: doctorId };
 
-  if (params.search && params.search.trim()) {
+  if (params.search?.trim()) {
     const searchRegex = new RegExp(params.search.trim(), 'i');
     filter.$or = [{ name: searchRegex }, { phone: searchRegex }, { condition: searchRegex }];
   }
 
   const [patients, total] = await Promise.all([
-    Patient.find(filter)
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit)
-      .lean(),
+    Patient.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
     Patient.countDocuments(filter),
   ]);
 

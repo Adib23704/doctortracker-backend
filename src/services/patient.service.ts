@@ -1,8 +1,8 @@
-import mongoose, { FilterQuery } from 'mongoose';
-import { Patient, IPatient } from '../models/Patient.js';
+import mongoose from 'mongoose';
 import { Doctor } from '../models/Doctor.js';
+import { Patient } from '../models/Patient.js';
 import { AppError } from '../utils/AppError.js';
-import { CreatePatientInput, UpdatePatientInput } from '../validations/patient.validation.js';
+import type { CreatePatientInput, UpdatePatientInput } from '../validations/patient.validation.js';
 
 export interface PatientQueryParams {
   page?: number;
@@ -22,9 +22,9 @@ export const getPatientsList = async (params: PatientQueryParams) => {
   const limit = Math.min(100, Math.max(1, Number(params.limit) || 10));
   const skip = (page - 1) * limit;
 
-  const filter: FilterQuery<IPatient> = {};
+  const filter: Record<string, any> = {};
 
-  if (params.search && params.search.trim()) {
+  if (params.search?.trim()) {
     const searchRegex = new RegExp(params.search.trim(), 'i');
     filter.$or = [{ name: searchRegex }, { phone: searchRegex }, { condition: searchRegex }];
   }
@@ -89,7 +89,9 @@ export const getPatientById = async (id: string) => {
     throw new AppError('Invalid Patient ID format', 400);
   }
 
-  const patient = await Patient.findById(id).populate('doctor', 'name specialization hospital phone email').lean();
+  const patient = await Patient.findById(id)
+    .populate('doctor', 'name specialization hospital phone email')
+    .lean();
   if (!patient) {
     throw new AppError('Patient not found', 404);
   }
@@ -186,4 +188,11 @@ export const deletePatient = async (id: string) => {
   }
 
   return { message: 'Patient deleted successfully' };
+};
+
+export const getDistinctConditionsList = async (): Promise<string[]> => {
+  const conditions = await Patient.distinct('condition');
+  return conditions
+    .filter((c): c is string => typeof c === 'string' && c.trim().length > 0)
+    .sort((a, b) => a.localeCompare(b));
 };

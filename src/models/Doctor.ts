@@ -1,4 +1,4 @@
-import mongoose, { Document, Model, Schema } from 'mongoose';
+import mongoose, { type Document, type Model, Schema } from 'mongoose';
 
 export interface IDoctor extends Document {
   name: string;
@@ -57,4 +57,5 @@ doctorSchema.index({ name: 'text', specialization: 'text', hospital: 'text' });
 doctorSchema.index({ specialization: 1, createdAt: -1 });
 doctorSchema.index({ createdAt: -1 });
 
-export const Doctor: Model<IDoctor> = mongoose.models.Doctor || mongoose.model<IDoctor>('Doctor', doctorSchema);
+export const Doctor: Model<IDoctor> =
+  mongoose.models.Doctor || mongoose.model<IDoctor>('Doctor', doctorSchema);

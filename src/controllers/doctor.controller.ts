@@ -1,15 +1,15 @@
-import { Request, Response } from 'express';
-import { asyncHandler } from '../utils/asyncHandler.js';
+import type { Request, Response } from 'express';
 import {
-  getDoctorsList,
-  getDoctorById,
+  addPatientUnderDoctor,
   createDoctor as createDoctorService,
   deleteDoctor as deleteDoctorService,
-  getPatientsByDoctorId,
-  addPatientUnderDoctor,
   deletePatientFromDoctor,
+  getDoctorById,
+  getDoctorsList,
+  getPatientsByDoctorId,
 } from '../services/doctor.service.js';
-import { createDoctorSchema, createDoctorPatientSchema } from '../validations/doctor.validation.js';
+import { asyncHandler } from '../utils/asyncHandler.js';
+import { createDoctorPatientSchema, createDoctorSchema } from '../validations/doctor.validation.js';
 
 export const getDoctors = asyncHandler(async (req: Request, res: Response) => {
   const result = await getDoctorsList(req.query);
@@ -21,7 +21,8 @@ export const getDoctors = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const getDoctor = asyncHandler(async (req: Request, res: Response) => {
-  const doctor = await getDoctorById(req.params.id);
+  const id = req.params.id as string;
+  const doctor = await getDoctorById(id);
   res.status(200).json({
     success: true,
     data: doctor,
@@ -38,7 +39,8 @@ export const createDoctor = asyncHandler(async (req: Request, res: Response) => 
 });
 
 export const deleteDoctor = asyncHandler(async (req: Request, res: Response) => {
-  const result = await deleteDoctorService(req.params.id);
+  const id = req.params.id as string;
+  const result = await deleteDoctorService(id);
   res.status(200).json({
     success: true,
     data: result,
@@ -46,7 +48,8 @@ export const deleteDoctor = asyncHandler(async (req: Request, res: Response) => 
 });
 
 export const getDoctorPatients = asyncHandler(async (req: Request, res: Response) => {
-  const result = await getPatientsByDoctorId(req.params.id, req.query);
+  const id = req.params.id as string;
+  const result = await getPatientsByDoctorId(id, req.query);
   res.status(200).json({
     success: true,
     data: result.patients,
@@ -55,8 +58,9 @@ export const getDoctorPatients = asyncHandler(async (req: Request, res: Response
 });
 
 export const addDoctorPatient = asyncHandler(async (req: Request, res: Response) => {
+  const id = req.params.id as string;
   const validated = createDoctorPatientSchema.parse(req.body);
-  const patient = await addPatientUnderDoctor(req.params.id, validated);
+  const patient = await addPatientUnderDoctor(id, validated);
   res.status(201).json({
     success: true,
     data: patient,
@@ -64,7 +68,9 @@ export const addDoctorPatient = asyncHandler(async (req: Request, res: Response)
 });
 
 export const deleteDoctorPatient = asyncHandler(async (req: Request, res: Response) => {
-  const result = await deletePatientFromDoctor(req.params.id, req.params.patientId);
+  const id = req.params.id as string;
+  const patientId = req.params.patientId as string;
+  const result = await deletePatientFromDoctor(id, patientId);
   res.status(200).json({
     success: true,
     data: result,

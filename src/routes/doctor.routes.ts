@@ -1,12 +1,12 @@
 import { Router } from 'express';
 import {
-  getDoctors,
-  getDoctor,
+  addDoctorPatient,
   createDoctor,
   deleteDoctor,
-  getDoctorPatients,
-  addDoctorPatient,
   deleteDoctorPatient,
+  getDoctor,
+  getDoctorPatients,
+  getDoctors,
 } from '../controllers/doctor.controller.js';
 import { protect } from '../middlewares/auth.middleware.js';
 
@@ -14,19 +14,12 @@ const router = Router();
 
 router.use(protect);
 
-router.route('/')
-  .get(getDoctors)
-  .post(createDoctor);
+router.route('/').get(getDoctors).post(createDoctor);
 
-router.route('/:id')
-  .get(getDoctor)
-  .delete(deleteDoctor);
+router.route('/:id').get(getDoctor).delete(deleteDoctor);
 
-router.route('/:id/patients')
-  .get(getDoctorPatients)
-  .post(addDoctorPatient);
+router.route('/:id/patients').get(getDoctorPatients).post(addDoctorPatient);
 
-router.route('/:id/patients/:patientId')
-  .delete(deleteDoctorPatient);
+router.route('/:id/patients/:patientId').delete(deleteDoctorPatient);
 
 export default router;

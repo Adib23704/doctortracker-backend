@@ -1,4 +1,4 @@
-import mongoose, { Document, Model, Schema, Types } from 'mongoose';
+import mongoose, { type Document, type Model, Schema, type Types } from 'mongoose';
 
 export type PatientGender = 'Male' | 'Female' | 'Other';
 export type PatientStatus = 'Active' | 'Discharged' | 'Under Observation' | 'Critical';
@@ -90,4 +90,5 @@ patientSchema.index({ condition: 1, admissionDate: -1 });
 patientSchema.index({ status: 1, admissionDate: -1 });
 patientSchema.index({ name: 'text', phone: 'text' });
 
-export const Patient: Model<IPatient> = mongoose.models.Patient || mongoose.model<IPatient>('Patient', patientSchema);
+export const Patient: Model<IPatient> =
+  mongoose.models.Patient || mongoose.model<IPatient>('Patient', patientSchema);

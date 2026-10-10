@@ -1,4 +1,4 @@
-# Doctor Tracker — Backend API
+# Doctor Tracker - Backend API
 
 RESTful API service for Doctor Tracker, built with Node.js, Express, TypeScript, and MongoDB (Mongoose). Handles authentication, doctor and patient management, and real-time dashboard analytics.
 
@@ -80,6 +80,15 @@ npm run build
 npm start
 ```
 
+#### 8. Linting & formatting (Biome)
+Validate and format code using Biome:
+```bash
+npm run lint         # Verify code against Biome lint & style rules
+npm run lint:fix     # Apply auto-fixes and organize imports
+npm run format       # Format codebase
+```
+
+
 ---
 
 ## System Architecture
@@ -142,7 +151,7 @@ backend/src/
 Evidence of backend functionality and test verification is documented in `docs/screenshots/`:
 
 1. **Database Seeding (`seed.log`):** Shows creation of admin credentials, 12 doctors, 38+ patients, and calculated patient counts.
-2. **Automated API Verification (`test-api.log`):** Output from `npm run test:api` confirming health checks, 404 handling, auth token rejection, and login validation.
+2. **Automated API Verification (`test-api.log`):** Output from `npm run test:api` confirming health checks, 404 handling, auth token rejection, input validation, and live authenticated flows (7/7 passed).
 3. **Production Build:** Clean TypeScript compilation with zero errors via `tsc`.
 
 ---

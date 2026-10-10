@@ -1,16 +1,16 @@
-import express, { Request, Response } from 'express';
 import cors from 'cors';
+import dotenv from 'dotenv';
+import express, { type Request, type Response } from 'express';
 import helmet from 'helmet';
 import morgan from 'morgan';
-import dotenv from 'dotenv';
 import { connectDB } from './config/db.js';
 import { errorHandler } from './middlewares/errorHandler.js';
-import { AppError } from './utils/AppError.js';
+import analyticsRoutes from './routes/analytics.routes.js';
 
 import authRoutes from './routes/auth.routes.js';
 import doctorRoutes from './routes/doctor.routes.js';
 import patientRoutes from './routes/patient.routes.js';
-import analyticsRoutes from './routes/analytics.routes.js';
+import { AppError } from './utils/AppError.js';
 
 dotenv.config();
 
@@ -55,7 +55,7 @@ app.use('/api/doctors', doctorRoutes);
 app.use('/api/patients', patientRoutes);
 app.use('/api/analytics', analyticsRoutes);
 
-app.all('*', (req: Request, _res: Response) => {
+app.use((req: Request, _res: Response) => {
   throw new AppError(`Cannot ${req.method} ${req.originalUrl} - Route not found`, 404);
 });
 
@@ -64,12 +64,16 @@ app.use(errorHandler);
 const startServer = async () => {
   try {
     await connectDB();
-  } catch (err) {
-    console.warn('[Server] Warning: Started without immediate MongoDB connection. Retrying in background...');
+  } catch (_err) {
+    console.warn(
+      '[Server] Warning: Started without immediate MongoDB connection. Retrying in background...'
+    );
   }
 
   app.listen(PORT, () => {
-    console.log(`[Server] Doctor Tracker backend running on port ${PORT} [${process.env.NODE_ENV || 'development'}]`);
+    console.log(
+      `[Server] Doctor Tracker backend running on port ${PORT} [${process.env.NODE_ENV || 'development'}]`
+    );
   });
 };
 

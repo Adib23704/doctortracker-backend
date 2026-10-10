@@ -1,5 +1,5 @@
-import { Patient } from '../models/Patient.js';
 import { Doctor } from '../models/Doctor.js';
+import { Patient } from '../models/Patient.js';
 
 export interface DashboardAnalyticsResponse {
   kpis: {
@@ -21,6 +21,11 @@ export interface DashboardAnalyticsResponse {
     admissions: number;
   }>;
   conditionBreakdown: Array<{
+    condition: string;
+    count: number;
+    percentage: number;
+  }>;
+  allConditions?: Array<{
     condition: string;
     count: number;
     percentage: number;
@@ -101,10 +106,10 @@ export const getDashboardAnalytics = async (): Promise<DashboardAnalyticsRespons
               $group: {
                 _id: '$condition',
                 count: { $sum: 1 },
+                latestAdmission: { $max: '$admissionDate' },
               },
             },
-            { $sort: { count: -1 } },
-            { $limit: 6 },
+            { $sort: { count: -1, latestAdmission: -1, _id: 1 } },
             {
               $project: {
                 _id: 0,
@@ -136,15 +141,43 @@ export const getDashboardAnalytics = async (): Promise<DashboardAnalyticsRespons
     };
   });
 
-  const avgPatientsPerDoctor = totalDoctors > 0 ? Number((totalPatients / totalDoctors).toFixed(1)) : 0;
+  const avgPatientsPerDoctor =
+    totalDoctors > 0 ? Number((totalPatients / totalDoctors).toFixed(1)) : 0;
 
-  const conditionBreakdown = (facets.conditionDistribution || []).map(
-    (c: { condition: string; count: number }) => ({
+  const rawConditions: Array<{ condition: string; count: number }> =
+    facets.conditionDistribution || [];
+
+  const allConditions = rawConditions.map((c) => ({
+    condition: c.condition,
+    count: c.count,
+    percentage: totalPatients > 0 ? Number(((c.count / totalPatients) * 100).toFixed(1)) : 0,
+  }));
+
+  let conditionBreakdown: Array<{ condition: string; count: number; percentage: number }> = [];
+
+  if (rawConditions.length <= 6) {
+    conditionBreakdown = allConditions;
+  } else {
+    const top5 = rawConditions.slice(0, 5).map((c) => ({
       condition: c.condition,
       count: c.count,
       percentage: totalPatients > 0 ? Number(((c.count / totalPatients) * 100).toFixed(1)) : 0,
-    })
-  );
+    }));
+
+    const otherTotal = rawConditions.slice(5).reduce((sum, c) => sum + c.count, 0);
+
+    const otherPercentage =
+      totalPatients > 0 ? Number(((otherTotal / totalPatients) * 100).toFixed(1)) : 0;
+
+    conditionBreakdown = [
+      ...top5,
+      {
+        condition: `Other (${rawConditions.length - 5} diagnoses)`,
+        count: otherTotal,
+        percentage: otherPercentage,
+      },
+    ];
+  }
 
   return {
     kpis: {

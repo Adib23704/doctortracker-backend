@@ -1,6 +1,6 @@
-import { Request, Response, NextFunction } from 'express';
-import { ZodError } from 'zod';
+import type { NextFunction, Request, Response } from 'express';
 import mongoose from 'mongoose';
+import { ZodError } from 'zod';
 import { AppError } from '../utils/AppError.js';
 
 interface MongoDuplicateKeyError extends Error {
@@ -16,7 +16,7 @@ export const errorHandler = (
 ): void => {
   let statusCode = 500;
   let message = 'Internal Server Error';
-  let details: unknown = undefined;
+  let details: unknown;
 
   if (err instanceof AppError) {
     statusCode = err.statusCode;

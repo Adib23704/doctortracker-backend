@@ -1,6 +1,6 @@
-import { User } from '../models/User.js';
 import { Doctor } from '../models/Doctor.js';
 import { Patient } from '../models/Patient.js';
+import { User } from '../models/User.js';
 
 console.log('[Check-Models] Verifying model definitions...');
 

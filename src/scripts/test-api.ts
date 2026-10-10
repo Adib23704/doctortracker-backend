@@ -1,10 +1,18 @@
 process.env.NODE_ENV = 'test';
-import http from 'http';
-import { app } from '../server.js';
+
+import http from 'node:http';
 import mongoose from 'mongoose';
+import { connectDB } from '../config/db.js';
+import { app } from '../server.js';
 
 const runTests = async () => {
   console.log('[Test-API] Starting automated test suite for Doctor Tracker API...');
+
+  try {
+    await connectDB();
+  } catch (_dbErr) {
+    console.warn('[Test-API] Running in mock/disconnected mode. DB connection skipped.');
+  }
 
   const server = http.createServer(app);
   await new Promise<void>((resolve) => server.listen(5099, resolve));
@@ -26,15 +34,24 @@ const runTests = async () => {
   try {
     const healthRes = await fetch(`${baseUrl}/api/health`);
     const healthData = (await healthRes.json()) as any;
-    assert(healthRes.status === 200 && healthData.status === 'ok', 'GET /api/health returns 200 OK');
+    assert(
+      healthRes.status === 200 && healthData.status === 'ok',
+      'GET /api/health returns 200 OK'
+    );
 
     const notFoundRes = await fetch(`${baseUrl}/api/non-existent-route`);
     const notFoundData = (await notFoundRes.json()) as any;
-    assert(notFoundRes.status === 404 && notFoundData.success === false, '404 handler returns 404 for unknown route');
+    assert(
+      notFoundRes.status === 404 && notFoundData.success === false,
+      '404 handler returns 404 for unknown route'
+    );
 
     const unauthRes = await fetch(`${baseUrl}/api/doctors`);
     const unauthData = (await unauthRes.json()) as any;
-    assert(unauthRes.status === 401 && unauthData.success === false, 'GET /api/doctors rejects unauthenticated request with 401');
+    assert(
+      unauthRes.status === 401 && unauthData.success === false,
+      'GET /api/doctors rejects unauthenticated request with 401'
+    );
 
     const invalidLoginRes = await fetch(`${baseUrl}/api/auth/login`, {
       method: 'POST',
@@ -42,9 +59,14 @@ const runTests = async () => {
       body: JSON.stringify({ email: 'not-an-email', password: '123' }),
     });
     const invalidLoginData = (await invalidLoginRes.json()) as any;
-    assert(invalidLoginRes.status === 422 && invalidLoginData.success === false, 'POST /api/auth/login rejects invalid input with 422');
+    assert(
+      invalidLoginRes.status === 422 && invalidLoginData.success === false,
+      'POST /api/auth/login rejects invalid input with 422'
+    );
 
-    console.log(`\n[Test-API] Core API route tests completed. Passed: ${passed}, Failed: ${failed}`);
+    console.log(
+      `\n[Test-API] Core API route tests completed. Passed: ${passed}, Failed: ${failed}`
+    );
 
     if (mongoose.connection.readyState === 1) {
       console.log('[Test-API] MongoDB is connected. Testing live authenticated flows...');
@@ -62,17 +84,27 @@ const runTests = async () => {
           headers: { Authorization: `Bearer ${token}` },
         });
         const docsData = (await docsRes.json()) as any;
-        assert(docsRes.status === 200 && Array.isArray(docsData.data), 'GET /api/doctors returns paginated list');
+        assert(
+          docsRes.status === 200 && Array.isArray(docsData.data),
+          'GET /api/doctors returns paginated list'
+        );
 
         const analyticsRes = await fetch(`${baseUrl}/api/analytics/dashboard`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const analyticsData = (await analyticsRes.json()) as any;
-        assert(analyticsRes.status === 200 && !!analyticsData.data?.kpis, 'GET /api/analytics/dashboard returns KPI analytics');
+        assert(
+          analyticsRes.status === 200 && !!analyticsData.data?.kpis,
+          'GET /api/analytics/dashboard returns KPI analytics'
+        );
       }
     } else {
-      console.log('[Test-API] Note: Database not connected in test runner environment. Route and middleware tests passed.');
+      console.log(
+        '[Test-API] Note: Database not connected in test runner environment. Route and middleware tests passed.'
+      );
     }
+
+    console.log(`\n[Test-API] All tests finished. Total passed: ${passed}, Failed: ${failed}\n`);
   } catch (err) {
     console.error('[Test-API] Unexpected test runner error:', err);
     failed++;
