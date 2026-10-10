@@ -15,6 +15,12 @@ jobs:
     name: Lint, Build & Test
     runs-on: ubuntu-latest
 
+    services:
+      mongodb:
+        image: mongo:9.0
+        ports:
+          - 27017:27017
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -34,9 +40,17 @@ jobs:
       - name: Compile TypeScript build
         run: pnpm build
 
+      - name: Seed test database
+        run: pnpm seed
+        env:
+          NODE_ENV: test
+          MONGODB_URI: mongodb://127.0.0.1:27017/doctortracker_test
+          JWT_SECRET: ci_test_secret_key_1234567890abcdef
+
       - name: Run automated API verification tests
         run: pnpm test:api
         env:
           NODE_ENV: test
           PORT: 5099
+          MONGODB_URI: mongodb://127.0.0.1:27017/doctortracker_test
           JWT_SECRET: ci_test_secret_key_1234567890abcdef
